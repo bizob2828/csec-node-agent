@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pull-requests: write
     strategy:
       matrix:
         node-version: [lts/*]
@@ -31,20 +32,19 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
-    - name: Install dependencies
-      run: npm ci
     - name: Setup GitHub Credentials
       run: |
         git config user.name $GITHUB_ACTOR
         git config user.email gh-actions-${GITHUB_ACTOR}@github.com
     - name: Version ${{ github.event.inputs.release_type }} 
       run: npm version ${{ github.event.inputs.release_type }} 
+    - name: Get new package version
+      run: echo "VERSION=`node -e \"const { version } = require('./package.json'); console.log(version);\"`" >> $GITHUB_ENV
     - name: Create release branch
       run: |
-        VERSION=`node -e "const { version } = require('./package.json'); console.log(version);"`
         git checkout -b release/v$VERSION
         git push --set-upstream origin release/v$VERSION
     - name: Create PR
-      run: gh pr create -B main --title 'Release v$VERSION' --body 'Automated release of v$VERSION'
+      run: gh pr create -B main --title "Release v$VERSION" --body "Automated release of v$VERSION"
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

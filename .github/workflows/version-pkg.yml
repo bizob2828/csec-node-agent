@@ -45,6 +45,6 @@ jobs:
         git checkout -b release/v$VERSION
         git push --set-upstream origin release/v$VERSION
     - name: Create PR
-      run: gh pr create -B main -H release/v$VERSION --title 'Release v$VERSION' --body 'Automated release of v$VERSION'
+      run: gh pr create -B main --title 'Release v$VERSION' --body 'Automated release of v$VERSION'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
